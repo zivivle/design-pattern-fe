@@ -1,19 +1,21 @@
-import AbstractGrimpanFactory from "./AbstractGrimpanFactory";
-import ChromeGrimpan from "./ChromGrimpan";
-import IEGrimpan from "./IEGrimpan";
-class ChromeGrimpanFactory extends AbstractGrimpanFactory {
-    static createGrimpan() {
-        return ChromeGrimpan.getInstance();
-    }
-}
-class IEGrimpanFactory extends AbstractGrimpanFactory {
-    static createGrimpan() {
-        return IEGrimpan.getInstance();
-    }
-}
+import { IEGrimpanFactory } from "./GrimpanFactory.js";
 function main() {
-    const grimpan = IEGrimpanFactory.createGrimpan();
+    const factory = IEGrimpanFactory;
+    const grimpan = factory.createGrimpan();
+    const grimpanMenu = factory.createGrimpanMenu(grimpan, document.querySelector("#menu"));
+    const grimpanHistory = factory.createGrimpanHistory(grimpan);
     grimpan.initialize();
-    grimpan.initializeMenu();
+    grimpanMenu.initialize([
+        "pen",
+        "circle",
+        "rectangle",
+        "eraser",
+        "back",
+        "forward",
+        "save",
+        "pipette",
+        "color",
+    ]);
+    grimpanHistory.initialize();
 }
 main();

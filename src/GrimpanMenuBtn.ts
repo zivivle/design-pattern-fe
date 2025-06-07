@@ -1,31 +1,55 @@
-class GrimpanMenuBtn {
-  private name: string;
-  private type: string;
-  private onClick?: () => void;
-  private onChange?: () => void;
-  private active?: boolean;
-  private value?: string | number;
+import { GrimpanMenu } from "./GrimpanMenu.js";
 
-  private constructor(
-    name: string,
-    type: string,
-    onClick?: () => void,
-    onChange?: () => void,
-    active?: boolean,
-    value?: string | number
-  ) {
+abstract class GrimpanMenuElement {
+  protected menu: GrimpanMenu;
+  protected name: string;
+
+  protected constructor(menu: GrimpanMenu, name: string) {
+    this.menu = menu;
     this.name = name;
-    this.type = type;
-    this.onClick = onClick;
-    this.onChange = onChange;
-    this.active = active;
-    this.value = value;
   }
 
-  static Builder = class GrimpanMenuBtnBuilder {
-    btn: GrimpanMenuBtn;
-    constructor(name: string, type: string) {
-      this.btn = new GrimpanMenuBtn(name, type);
+  abstract draw(): void;
+}
+
+abstract class GrimpanMenuElementBuilder {
+  btn!: GrimpanMenuBtn;
+  constructor() {}
+
+  build() {
+    return this.btn;
+  }
+}
+
+export class GrimpanMenuBtn extends GrimpanMenuElement {
+  private onClick?: () => void;
+  private active?: boolean;
+
+  private constructor(
+    menu: GrimpanMenu,
+    name: string,
+    onClick?: () => void,
+    active?: boolean
+  ) {
+    super(menu, name);
+    this.onClick = onClick;
+    this.active = active;
+  }
+
+  draw() {
+    const btn = document.createElement("button");
+    btn.textContent = this.name;
+    if (this.onClick) {
+      btn.addEventListener("click", this.onClick.bind(this));
+    }
+    this.menu.dom.append(btn);
+  }
+
+  static Builder = class GrimpanMenuButtonBuilder extends GrimpanMenuElementBuilder {
+    override btn: GrimpanMenuBtn;
+    constructor(menu: GrimpanMenu, name: string) {
+      super();
+      this.btn = new GrimpanMenuBtn(menu, name);
     }
 
     setOnClick(onClick: () => void) {
@@ -33,13 +57,47 @@ class GrimpanMenuBtn {
       return this;
     }
 
-    setOnChange(onChange: () => void) {
-      this.btn.onChange = onChange;
-      return this;
-    }
-
     setActive(active: boolean) {
       this.btn.active = active;
+      return this;
+    }
+  };
+}
+
+export class GrimpanMenuInput extends GrimpanMenuElement {
+  private onChange?: () => void;
+  private value?: string | number;
+
+  private constructor(
+    menu: GrimpanMenu,
+    name: string,
+    onChange?: () => void,
+    value?: string | number
+  ) {
+    super(menu, name);
+    this.onChange = onChange;
+    this.value = value;
+  }
+
+  draw() {
+    const btn = document.createElement("input");
+    btn.type = "color";
+    btn.title = this.name;
+    if (this.onChange) {
+      btn.addEventListener("change", this.onChange.bind(this));
+    }
+    this.menu.dom.append(btn);
+  }
+
+  static Builder = class GrimpanMenuInputBuilder extends GrimpanMenuElementBuilder {
+    override btn: GrimpanMenuInput;
+    constructor(menu: GrimpanMenu, name: string) {
+      super();
+      this.btn = new GrimpanMenuInput(menu, name);
+    }
+
+    setOnChange(onChange: () => void) {
+      this.btn.onChange = onChange;
       return this;
     }
 
@@ -47,14 +105,5 @@ class GrimpanMenuBtn {
       this.btn.value = value;
       return this;
     }
-
-    build() {
-      return this.btn;
-    }
   };
 }
-
-const backBtn = new GrimpanMenuBtn.Builder("뒤로가기", "back")
-  .setOnClick(() => {})
-  .setActive(false)
-  .build();

@@ -1,4 +1,4 @@
-import { ChromeGrimpan, Grimpan, IEGrimpan } from "./Grimpan";
+import { ChromeGrimpan, Grimpan, IEGrimpan } from "./Grimpan.js";
 
 export abstract class GrimpanHistory {
   grimpan: Grimpan;
