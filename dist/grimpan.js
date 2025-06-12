@@ -1,3 +1,4 @@
+import { BackCommand, ForwardCommand } from "./commands/index.js";
 import { ChromeGrimpanFactory, IEGrimpanFactory, } from "./GrimpanFactory.js";
 export class Grimpan {
     canvas;
@@ -31,6 +32,16 @@ export class ChromeGrimpan extends Grimpan {
     initialize(options) {
         this.menu.initialize(options.menu);
         this.history.initialize();
+        window.addEventListener("keyup", (e) => {
+            if (e.code === "ShiftLeft") {
+                this.menu.executeCommand(new ForwardCommand(this.history));
+                return;
+            }
+            if (e.code === "MetaLeft") {
+                this.menu.executeCommand(new BackCommand(this.history));
+                return;
+            }
+        });
     }
     static getInstance() {
         if (!this.instance) {

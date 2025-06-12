@@ -11,6 +11,17 @@ export class BackCommand extends Command {
         this.history.undo();
     }
 }
+export class ForwardCommand extends Command {
+    history;
+    name = "forward";
+    constructor(history) {
+        super();
+        this.history = history;
+    }
+    execute() {
+        this.history.redo();
+    }
+}
 export class PenSelectCommand extends Command {
     grimpan;
     name = "penSelect";

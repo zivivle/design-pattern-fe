@@ -1,3 +1,4 @@
+import { BackCommand, ForwardCommand } from "./commands/index.js";
 import {
   AbstractGrimpanFactory,
   ChromeGrimpanFactory,
@@ -61,6 +62,16 @@ export class ChromeGrimpan extends Grimpan {
   initialize(options: GrimpanOptions) {
     this.menu.initialize(options.menu);
     this.history.initialize();
+    window.addEventListener("keyup", (e: KeyboardEvent) => {
+      if (e.code === "ShiftLeft") {
+        this.menu.executeCommand(new ForwardCommand(this.history));
+        return;
+      }
+      if (e.code === "MetaLeft") {
+        this.menu.executeCommand(new BackCommand(this.history));
+        return;
+      }
+    });
   }
 
   static override getInstance() {

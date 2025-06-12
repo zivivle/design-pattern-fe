@@ -17,6 +17,18 @@ export class BackCommand extends Command {
   }
 }
 
+export class ForwardCommand extends Command {
+  name = "forward";
+
+  constructor(public history: GrimpanHistory) {
+    super();
+  }
+
+  override execute(): void {
+    this.history.redo();
+  }
+}
+
 export class PenSelectCommand extends Command {
   name = "penSelect";
 
