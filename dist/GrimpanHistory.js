@@ -1,12 +1,31 @@
+class HistoryStack extends Array {
+    clone() {
+        return this.slice();
+    }
+}
 export class GrimpanHistory {
     grimpan;
+    stack;
     constructor(grimpan) {
         this.grimpan = grimpan;
+        this.stack = new HistoryStack();
+    }
+    getStack() {
+        return this.stack.clone();
+    }
+    setStack(stack) {
+        this.stack = stack.clone();
     }
     static getInstance(grimpan) { }
 }
 export class ChromeGrimpanHistory extends GrimpanHistory {
     static instance;
+    undo() {
+        console.log("undo");
+    }
+    redo() {
+        console.log("redo");
+    }
     initialize() { }
     static getInstance(grimpan) {
         if (!this.instance) {
@@ -17,6 +36,12 @@ export class ChromeGrimpanHistory extends GrimpanHistory {
 }
 export class IEGrimpanHistory extends GrimpanHistory {
     static instance;
+    undo() {
+        console.log("undo");
+    }
+    redo() {
+        console.log("redo");
+    }
     initialize() { }
     static getInstance(grimpan) {
         if (!this.instance) {

@@ -1,58 +1,58 @@
 class GrimpanMenuElement {
     menu;
     name;
-    constructor(menu, name) {
+    type;
+    constructor(menu, name, type) {
         this.menu = menu;
         this.name = name;
+        this.type = type;
     }
-    static Builder = class GrimpanMenuBtnBuilder {
-        btn;
-        constructor(menu, name) {
-            this.btn = new GrimpanMenuElement(menu, name);
-        }
-        setOnClick(onClick) {
-            this.btn.onClick = onClick;
-            return this;
-        }
-        setOnChange(onChange) {
-            this.btn.onChange = onChange;
-            return this;
-        }
-        setActive(active) {
-            this.btn.active = active;
-            return this;
-        }
-        setValue(value) {
-            this.btn.value = value;
-            return this;
-        }
-        build() {
-            return this.btn;
-        }
-    };
 }
-export class GrimpanMenuButton extends GrimpanMenuElement {
+class GrimpanMenuElementBuilder {
+    btn;
+    constructor() { }
+    build() {
+        return this.btn;
+    }
+}
+export class GrimpanMenuBtn extends GrimpanMenuElement {
     onClick;
     active;
-    constructor(menu, name, onClick, active) {
-        super(menu, name);
+    constructor(menu, name, type, onClick, active) {
+        super(menu, name, type);
         this.onClick = onClick;
         this.active = active;
     }
     draw() {
         const btn = document.createElement("button");
         btn.textContent = this.name;
+        btn.id = `${this.type}-btn`;
         if (this.onClick) {
             btn.addEventListener("click", this.onClick.bind(this));
         }
         this.menu.dom.append(btn);
     }
+    static Builder = class GrimpanMenuButtonBuilder extends GrimpanMenuElementBuilder {
+        btn;
+        constructor(menu, name, type) {
+            super();
+            this.btn = new GrimpanMenuBtn(menu, name, type);
+        }
+        setOnClick(onClick) {
+            this.btn.onClick = onClick;
+            return this;
+        }
+        setActive(active) {
+            this.btn.active = active;
+            return this;
+        }
+    };
 }
 export class GrimpanMenuInput extends GrimpanMenuElement {
     onChange;
     value;
-    constructor(menu, name, onChange, value) {
-        super(menu, name);
+    constructor(menu, name, type, onChange, value) {
+        super(menu, name, type);
         this.onChange = onChange;
         this.value = value;
     }
@@ -60,9 +60,25 @@ export class GrimpanMenuInput extends GrimpanMenuElement {
         const btn = document.createElement("input");
         btn.type = "color";
         btn.title = this.name;
+        btn.id = "color-btn";
         if (this.onChange) {
             btn.addEventListener("change", this.onChange.bind(this));
         }
         this.menu.dom.append(btn);
     }
+    static Builder = class GrimpanMenuInputBuilder extends GrimpanMenuElementBuilder {
+        btn;
+        constructor(menu, name, type) {
+            super();
+            this.btn = new GrimpanMenuInput(menu, name, type);
+        }
+        setOnChange(onChange) {
+            this.btn.onChange = onChange;
+            return this;
+        }
+        setValue(value) {
+            this.btn.value = value;
+            return this;
+        }
+    };
 }

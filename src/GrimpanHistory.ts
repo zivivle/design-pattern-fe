@@ -19,6 +19,9 @@ export abstract class GrimpanHistory {
     this.stack = new HistoryStack();
   }
 
+  abstract undo(): void;
+  abstract redo(): void;
+
   getStack() {
     return this.stack.clone();
   }
@@ -35,6 +38,13 @@ export abstract class GrimpanHistory {
 export class ChromeGrimpanHistory extends GrimpanHistory {
   private static instance: ChromeGrimpanHistory;
 
+  override undo(): void {
+    console.log("undo");
+  }
+  override redo(): void {
+    console.log("redo");
+  }
+
   override initialize(): void {}
 
   static override getInstance(grimpan: ChromeGrimpan): ChromeGrimpanHistory {
@@ -47,6 +57,14 @@ export class ChromeGrimpanHistory extends GrimpanHistory {
 
 export class IEGrimpanHistory extends GrimpanHistory {
   private static instance: IEGrimpanHistory;
+
+  override undo(): void {
+    console.log("undo");
+  }
+
+  override redo(): void {
+    console.log("redo");
+  }
 
   override initialize(): void {}
 
