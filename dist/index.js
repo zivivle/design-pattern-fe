@@ -4,15 +4,15 @@ function main() {
     const grimpan = factory.createGrimpan();
     grimpan.initialize({
         menu: [
+            "back",
+            "forward",
+            "color",
+            "pipette",
             "pen",
             "circle",
             "rectangle",
             "eraser",
-            "back",
-            "forward",
             "save",
-            "pipette",
-            "color",
         ],
     });
 }

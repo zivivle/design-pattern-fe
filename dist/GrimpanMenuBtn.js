@@ -64,6 +64,7 @@ export class GrimpanMenuInput extends GrimpanMenuElement {
         if (this.onChange) {
             btn.addEventListener("change", this.onChange.bind(this));
         }
+        this.menu.colorBtn = btn;
         this.menu.dom.append(btn);
     }
     static Builder = class GrimpanMenuInputBuilder extends GrimpanMenuElementBuilder {

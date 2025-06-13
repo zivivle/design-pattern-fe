@@ -24,6 +24,7 @@ export type BtnType =
 export abstract class GrimpanMenu {
   grimpan: Grimpan;
   dom: HTMLElement;
+  colorBtn!: HTMLInputElement;
 
   protected constructor(grimpan: Grimpan, dom: HTMLElement) {
     this.grimpan = grimpan;
@@ -33,7 +34,11 @@ export abstract class GrimpanMenu {
   setActiveBtn(type: GrimpanMode) {
     document.querySelector(".active")?.classList.remove("active");
     document.querySelector(`#${type}-btn`)?.classList.add("active");
-    this.grimpan.setMode(type);
+  }
+
+  executeCommand(command: Command) {
+    // 조건에 따라서 command를 호출할수도 있고 호출하지 않을수도 있음
+    command.execute();
   }
 
   abstract initialize(types: BtnType[]): void;
@@ -47,12 +52,7 @@ export class IEGrimpanMenu extends GrimpanMenu {
   override initialize(types: BtnType[]): void {
     types.forEach(this.drawButtonByType.bind(this));
     document.addEventListener("keydown", this.onClickBack);
-  }
-
-  executeCommand(command: Command) {
-    // 조건에 따라서 command를 호출할수도 있고 호출하지 않을수도 있음
-    // Invoker
-    command.execute();
+    this.grimpan.setMode("pen");
   }
 
   onClickBack() {
@@ -96,8 +96,10 @@ export class IEGrimpanMenu extends GrimpanMenu {
         break;
       case "color":
         btn = new GrimpanMenuInput.Builder(this, "컬러", type)
-          .setOnChange(() => {
-            // 컬러 변경 작업
+          .setOnChange((e: Event) => {
+            if (e.target) {
+              this.grimpan.setColor((e.target as HTMLInputElement).value);
+            }
           })
           .build();
         break;
@@ -123,11 +125,7 @@ export class ChromeGrimpanMenu extends GrimpanMenu {
   override initialize(types: BtnType[]): void {
     types.forEach(this.drawButtonByType.bind(this));
     document.addEventListener("keydown", this.onClickBack.bind(this));
-  }
-
-  executeCommand(command: Command) {
-    // 조건에 따라서 command를 호출할수도 있고 호출하지 않을수도 있음
-    command.execute();
+    this.grimpan.setMode("pen");
   }
 
   onClickBack() {
@@ -141,19 +139,19 @@ export class ChromeGrimpanMenu extends GrimpanMenu {
   }
 
   onClickEraser() {
-    this.executeCommand(new EraserSelectCommand(this.grimpan));
+    this.grimpan.setMode("eraser");
   }
 
   onClickCircle() {
-    this.executeCommand(new CircleSelectCommand(this.grimpan));
+    this.grimpan.setMode("circle");
   }
 
   onClickRectangle() {
-    this.executeCommand(new RectangleSelectCommand(this.grimpan));
+    this.grimpan.setMode("rectangle");
   }
 
   onClickPipette() {
-    this.executeCommand(new PipetteSelectCommand(this.grimpan));
+    this.grimpan.setMode("pipette");
   }
 
   drawButtonByType(type: BtnType) {
@@ -201,8 +199,10 @@ export class ChromeGrimpanMenu extends GrimpanMenu {
         break;
       case "color":
         btn = new GrimpanMenuInput.Builder(this, "컬러", type)
-          .setOnChange(() => {
-            // 컬러 변경 작업
+          .setOnChange((e: Event) => {
+            if (e.target) {
+              this.grimpan.setColor((e.target as HTMLInputElement).value);
+            }
           })
           .build();
         break;
