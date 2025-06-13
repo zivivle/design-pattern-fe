@@ -1,4 +1,4 @@
-import { BackCommand, ForwardCommand, } from "./commands/index.js";
+import { BackCommand, ForwardCommand } from "./commands/index.js";
 import { ChromeGrimpanFactory, IEGrimpanFactory, } from "./GrimpanFactory.js";
 import { CircleMode, EraserMode, PenMode, PipetteMode, RectangleMode, } from "./modes/index.js";
 export class Grimpan {
@@ -10,6 +10,11 @@ export class Grimpan {
     color;
     active;
     saveStrategy;
+    saveSetting = {
+        blur: false,
+        grayscale: false,
+        invert: false,
+    };
     constructor(canvas, factory) {
         if (!canvas || !(canvas instanceof HTMLCanvasElement)) {
             throw new Error("canvas 엘리먼트를 입력하세요");

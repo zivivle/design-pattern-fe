@@ -1,8 +1,4 @@
-import {
-  BackCommand,
-  ForwardCommand,
-  PenSelectCommand,
-} from "./commands/index.js";
+import { BackCommand, ForwardCommand } from "./commands/index.js";
 import {
   AbstractGrimpanFactory,
   ChromeGrimpanFactory,
@@ -30,6 +26,11 @@ export abstract class Grimpan {
   color: string;
   active: boolean;
   saveStrategy!: () => void;
+  saveSetting = {
+    blur: false,
+    grayscale: false,
+    invert: false,
+  };
 
   protected constructor(
     canvas: HTMLElement | null,
