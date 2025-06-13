@@ -6,6 +6,7 @@ import {
   PenSelectCommand,
   PipetteSelectCommand,
   RectangleSelectCommand,
+  SaveCommand,
 } from "./commands/index.js";
 import { ChromeGrimpan, Grimpan, GrimpanMode, IEGrimpan } from "./Grimpan.js";
 import { GrimpanMenuBtn, GrimpanMenuInput } from "./GrimpanMenuBtn.js";
@@ -128,6 +129,10 @@ export class ChromeGrimpanMenu extends GrimpanMenu {
     this.grimpan.setMode("pen");
   }
 
+  onSave() {
+    this.executeCommand(new SaveCommand(this.grimpan));
+  }
+
   onClickBack() {
     this.executeCommand(new BackCommand(this.grimpan.history));
   }
@@ -189,9 +194,6 @@ export class ChromeGrimpanMenu extends GrimpanMenu {
           })
           .build();
         break;
-      case "save":
-        btn = new GrimpanMenuBtn.Builder(this, "저장", type).build();
-        break;
       case "pipette":
         btn = new GrimpanMenuBtn.Builder(this, "파이프티", type)
           .setOnClick(this.onClickPipette.bind(this))
@@ -204,6 +206,11 @@ export class ChromeGrimpanMenu extends GrimpanMenu {
               this.grimpan.setColor((e.target as HTMLInputElement).value);
             }
           })
+          .build();
+        break;
+      case "save":
+        btn = new GrimpanMenuBtn.Builder(this, "저장", type)
+          .setOnClick(this.onSave.bind(this))
           .build();
         break;
     }
