@@ -17,6 +17,14 @@ export abstract class GrimpanHistory {
   protected constructor(grimpan: Grimpan) {
     this.grimpan = grimpan;
     this.stack = new HistoryStack();
+    this.grimpan.saveCompleteObserver.subscribe({
+      name: "history",
+      publish: this.afterSaveComplete.bind(this),
+    });
+  }
+
+  afterSaveComplete() {
+    console.log("history save complete");
   }
 
   abstract undo(): void;
