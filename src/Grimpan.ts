@@ -20,7 +20,7 @@ import {
   PipetteMode,
   RectangleMode,
 } from "./modes/index.js";
-import { SaveCompleteObserver } from "./Observer.js";
+import { SaveCompleteObserver, SubscribeManager } from "./Observer.js";
 
 export type GrimpanMode = "pen" | "eraser" | "pipette" | "circle" | "rectangle";
 
@@ -38,7 +38,6 @@ export abstract class Grimpan {
     grayscale: false,
     invert: false,
   };
-  saveCompleteObserver: SaveCompleteObserver;
 
   protected constructor(
     canvas: HTMLElement | null,
@@ -53,7 +52,7 @@ export abstract class Grimpan {
     this.color = "#000000";
     this.active = false;
     this.setSaveStrategy("png");
-    this.saveCompleteObserver = new SaveCompleteObserver();
+    SubscribeManager.getInstance().addEvent("saveComplete");
   }
 
   setSaveStrategy(imageType: "png" | "jpg" | "webp" | "avif" | "gif" | "pdf") {
@@ -96,7 +95,7 @@ export abstract class Grimpan {
                 );
                 a.href = url;
                 a.click();
-                this.saveCompleteObserver.publish();
+                SubscribeManager.getInstance().publish("saveComplete");
               });
               reader.readAsDataURL(blob);
             });
