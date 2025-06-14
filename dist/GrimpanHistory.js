@@ -1,5 +1,5 @@
 import { SubscribeManager } from "./Observer.js";
-class HistoryStack extends Array {
+export class HistoryStack extends Array {
     clone() {
         return this.slice();
     }

@@ -5,7 +5,7 @@ interface Clonable {
   clone(): Clonable;
 }
 
-class HistoryStack extends Array implements Clonable {
+export class HistoryStack extends Array implements Clonable {
   clone() {
     return this.slice() as HistoryStack;
   }
