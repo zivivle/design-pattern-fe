@@ -1,4 +1,4 @@
-import { BackCommand, PenSelectCommand, SaveCommand, } from "./commands/index.js";
+import { BackCommand, SaveCommand, } from "./commands/index.js";
 import { GrimpanMenuBtn, GrimpanMenuInput, GrimpanMenuSaveBtn, } from "./GrimpanMenuBtn.js";
 export class GrimpanMenu {
     grimpan;
@@ -97,9 +97,7 @@ export class ChromeGrimpanMenu extends GrimpanMenu {
         this.executeCommand(new BackCommand(this.grimpan.history));
     }
     onClickPen() {
-        const command = new PenSelectCommand(this.grimpan);
-        this.executeCommand(command);
-        this.grimpan.history.stack.push(command);
+        this.grimpan.setMode("pen");
     }
     onClickEraser() {
         this.grimpan.setMode("eraser");
@@ -168,11 +166,13 @@ export class ChromeGrimpanMenu extends GrimpanMenu {
                     .setFilterListeners({
                     blur: (e) => {
                         this.grimpan.saveSetting.blur = e.target?.checked;
-                        this.grimpan.saveSetting.grayscale = e.target?.checked;
+                    },
+                    invert: (e) => {
                         this.grimpan.saveSetting.invert = e.target?.checked;
                     },
-                    invert: () => { },
-                    grayscale: () => { },
+                    grayscale: (e) => {
+                        this.grimpan.saveSetting.grayscale = e.target?.checked;
+                    },
                 })
                     .build();
                 break;

@@ -1,5 +1,11 @@
 import { BackCommand, ForwardCommand } from "./commands/index.js";
 import {
+  BlurFilter,
+  DefaultFilter,
+  GrayscaleFilter,
+  InvertFilter,
+} from "./filters/index.js";
+import {
   AbstractGrimpanFactory,
   ChromeGrimpanFactory,
   IEGrimpanFactory,
@@ -44,26 +50,63 @@ export abstract class Grimpan {
     this.mode = null;
     this.color = "#000000";
     this.active = false;
-    this.setSaveStrategy("webp");
+    this.setSaveStrategy("png");
   }
 
   setSaveStrategy(imageType: "png" | "jpg" | "webp" | "avif" | "gif" | "pdf") {
     switch (imageType) {
       case "png":
         this.saveStrategy = () => {
-          const a = document.createElement("a");
-          a.download = "canvas.png";
-          const dataURL = this.canvas.toDataURL("image/png");
-          let url = dataURL.replace(
-            /^data:image\/png/,
-            "data:application/octet-stream"
-          );
-          a.href = url;
-          a.click();
+          let imageData = this.ctx.getImageData(0, 0, 300, 300);
+          /**
+           * offscreenCanvas는 화면에는 표시되지않고 메모리에만 존재하는 캔버스
+           * */
+          const offscreenCanvas = new OffscreenCanvas(300, 300);
+          const offscreenContext = offscreenCanvas.getContext("2d")!;
+          offscreenContext.putImageData(imageData, 0, 0);
+
+          const df = new DefaultFilter();
+          let filter = df;
+          if (this.saveSetting.blur) {
+            const bf = new BlurFilter();
+            filter = filter.setNext(bf);
+          }
+          if (this.saveSetting.grayscale) {
+            const gf = new GrayscaleFilter();
+            filter = filter.setNext(gf);
+          }
+          if (this.saveSetting.invert) {
+            const ivf = new InvertFilter();
+            filter = filter.setNext(ivf);
+          }
+          df.handle(offscreenCanvas).then(() => {
+            const a = document.createElement("a");
+            a.download = "canvas.png";
+            offscreenCanvas.convertToBlob().then((blob) => {
+              const reader = new FileReader();
+              reader.addEventListener("load", () => {
+                const dataURL = reader.result as string;
+                console.log(dataURL);
+                let url = dataURL.replace(
+                  /^data:image\/png/,
+                  "data:application/octet-stream"
+                );
+                a.href = url;
+                a.click();
+              });
+              reader.readAsDataURL(blob);
+            });
+          });
         };
         break;
       case "jpg":
         this.saveStrategy = () => {
+          if (this.saveSetting.blur) {
+          }
+          if (this.saveSetting.grayscale) {
+          }
+          if (this.saveSetting.invert) {
+          }
           const a = document.createElement("a");
           a.download = "canvas.jpg";
           const dataURL = this.canvas.toDataURL("image/jpeg");
@@ -77,6 +120,12 @@ export abstract class Grimpan {
         break;
       case "webp":
         this.saveStrategy = () => {
+          if (this.saveSetting.blur) {
+          }
+          if (this.saveSetting.grayscale) {
+          }
+          if (this.saveSetting.invert) {
+          }
           const a = document.createElement("a");
           a.download = "canvas.webp";
           const dataURL = this.canvas.toDataURL("image/webp");
