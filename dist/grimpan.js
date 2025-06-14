@@ -1,4 +1,4 @@
-import { BackCommand, ForwardCommand } from "./commands/index.js";
+import { BackCommand, ForwardCommand, } from "./commands/index.js";
 import { BlurFilter, DefaultFilter, GrayscaleFilter, InvertFilter, } from "./filters/index.js";
 import { ChromeGrimpanFactory, IEGrimpanFactory, } from "./GrimpanFactory.js";
 import { CircleMode, EraserMode, PenMode, PipetteMode, RectangleMode, } from "./modes/index.js";
@@ -17,6 +17,15 @@ export class Grimpan {
         grayscale: false,
         invert: false,
     };
+    // 메멘토 패턴 적용
+    makeSnapshot() {
+        const snapshot = {
+            color: this.color,
+            mode: this.mode,
+            data: this.canvas.toDataURL("image/png"),
+        };
+        return Object.freeze(snapshot);
+    }
     constructor(canvas, factory) {
         if (!canvas || !(canvas instanceof HTMLCanvasElement)) {
             throw new Error("canvas 엘리먼트를 입력하세요");
@@ -140,6 +149,9 @@ export class Grimpan {
             }
         }
     }
+    invoke(command) {
+        command.execute();
+    }
     setColor(color) {
         this.color = color;
     }
@@ -148,6 +160,20 @@ export class Grimpan {
         if (this.menu.colorBtn) {
             this.menu.colorBtn.value = color;
         }
+    }
+    resetState() {
+        this.color = "#000000";
+        this.mode = new PenMode(this);
+        // clearRect로 canvas를 전체 지울수 있음
+        this.ctx.clearRect(0, 0, 300, 300);
+    }
+    restore(history) {
+        const img = new Image();
+        img.addEventListener("load", () => {
+            this.ctx.clearRect(0, 0, 300, 300);
+            this.ctx.drawImage(img, 0, 0, 300, 300);
+        });
+        img.src = history.data;
     }
     static getInstance() { }
 }

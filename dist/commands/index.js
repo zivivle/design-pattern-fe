@@ -33,6 +33,17 @@ export class PenSelectCommand extends Command {
         this.grimpan.menu.setActiveBtn("pen");
     }
 }
+export class SaveHistoryCommand extends Command {
+    grimpan;
+    name = "saveHistory";
+    constructor(grimpan) {
+        super();
+        this.grimpan = grimpan;
+    }
+    execute() {
+        this.grimpan.history.saveHistory();
+    }
+}
 export class EraserSelectCommand extends Command {
     grimpan;
     name = "eraserSelect";

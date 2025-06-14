@@ -9,11 +9,15 @@ class HistoryStack extends Array implements Clonable {
   clone() {
     return this.slice() as HistoryStack;
   }
+  override slice(start?: number, end?: number): HistoryStack {
+    return super.slice(start, end) as HistoryStack;
+  }
 }
 
 export abstract class GrimpanHistory {
   grimpan: Grimpan;
   stack: HistoryStack;
+  index = -1;
 
   protected constructor(grimpan: Grimpan) {
     this.grimpan = grimpan;
@@ -24,6 +28,19 @@ export abstract class GrimpanHistory {
     });
   }
 
+  saveHistory() {
+    const snapshot = this.grimpan.makeSnapshot();
+    if (this.index === this.stack.length - 1) {
+      this.stack.push(snapshot);
+      this.index++;
+    } else {
+      // 뒤로가기를 몇번 누른 상태 or 히스토리 스택의 마지막 상태가 아닌 경우
+      this.stack = this.stack.slice(0, this.index + 1);
+      this.stack.push(snapshot);
+      this.index++;
+    }
+  }
+
   afterSaveComplete() {
     console.log("history save complete");
   }
@@ -32,8 +49,30 @@ export abstract class GrimpanHistory {
     SubscribeManager.getInstance().unsubscribe("saveComplete", "history");
   }
 
-  abstract undo(): void;
-  abstract redo(): void;
+  undoable() {
+    return this.index > 0;
+  }
+
+  redoable() {
+    return this.index < this.stack.length - 1;
+  }
+
+  undo(): void {
+    if (this.undoable()) {
+      this.index--;
+    } else {
+      return;
+    }
+    this.grimpan.restore(this.stack[this.index]);
+  }
+  redo(): void {
+    if (this.redoable()) {
+      this.index++;
+    } else {
+      return;
+    }
+    this.grimpan.restore(this.stack[this.index]);
+  }
 
   getStack() {
     return this.stack.clone();
@@ -43,22 +82,13 @@ export abstract class GrimpanHistory {
     this.stack = stack.clone();
   }
 
-  abstract initialize(): void;
+  initialize() {}
 
   static getInstance(grimpan: Grimpan) {}
 }
 
 export class ChromeGrimpanHistory extends GrimpanHistory {
   private static instance: ChromeGrimpanHistory;
-
-  override undo(): void {
-    console.log("undo");
-  }
-  override redo(): void {
-    console.log("redo");
-  }
-
-  override initialize(): void {}
 
   static override getInstance(grimpan: ChromeGrimpan): ChromeGrimpanHistory {
     if (!this.instance) {
@@ -70,16 +100,6 @@ export class ChromeGrimpanHistory extends GrimpanHistory {
 
 export class IEGrimpanHistory extends GrimpanHistory {
   private static instance: IEGrimpanHistory;
-
-  override undo(): void {
-    console.log("undo");
-  }
-
-  override redo(): void {
-    console.log("redo");
-  }
-
-  override initialize(): void {}
 
   static override getInstance(grimpan: IEGrimpan): IEGrimpanHistory {
     if (!this.instance) {

@@ -1,9 +1,11 @@
 import {
   CircleSelectCommand,
+  Command,
   EraserSelectCommand,
   PenSelectCommand,
   PipetteSelectCommand,
   RectangleSelectCommand,
+  SaveHistoryCommand,
 } from "./../commands/index.js";
 import { Grimpan } from "../Grimpan.js";
 import { rgb2hex } from "../utils/rgb2hex.js";
@@ -14,6 +16,9 @@ export abstract class Mode {
   abstract mousedown(e: MouseEvent): void;
   abstract mousemove(e: MouseEvent): void;
   abstract mouseup(e: MouseEvent): void;
+  invoke(command: Command) {
+    command.execute();
+  }
 }
 
 export class PenMode extends Mode {
@@ -40,8 +45,11 @@ export class PenMode extends Mode {
     this.grimpan.ctx.moveTo(e.offsetX, e.offsetY);
   }
   override mouseup(e: MouseEvent): void {
-    this.grimpan.active = false;
     // 히스토리 저장
+    if (this.grimpan.active) {
+      this.invoke(new SaveHistoryCommand(this.grimpan));
+    }
+    this.grimpan.active = false;
   }
 }
 
@@ -68,8 +76,11 @@ export class EraserMode extends Mode {
     this.grimpan.ctx.moveTo(e.offsetX, e.offsetY);
   }
   override mouseup(e: MouseEvent): void {
-    this.grimpan.active = false;
     // 히스토리 저장
+    if (this.grimpan.active) {
+      this.invoke(new SaveHistoryCommand(this.grimpan));
+    }
+    this.grimpan.active = false;
   }
 }
 
@@ -79,9 +90,16 @@ export class CircleMode extends Mode {
     grimpan.menu.executeCommand(new CircleSelectCommand(grimpan));
   }
 
-  override mousedown(e: MouseEvent): void {}
+  override mousedown(e: MouseEvent): void {
+    this.grimpan.active = true;
+  }
   override mousemove(e: MouseEvent): void {}
-  override mouseup(e: MouseEvent): void {}
+  override mouseup(e: MouseEvent): void {
+    // 히스토리 저장
+    if (this.grimpan.active) {
+      this.invoke(new SaveHistoryCommand(this.grimpan));
+    }
+  }
 }
 
 export class RectangleMode extends Mode {
@@ -90,9 +108,16 @@ export class RectangleMode extends Mode {
     grimpan.menu.executeCommand(new RectangleSelectCommand(grimpan));
   }
 
-  override mousedown(e: MouseEvent): void {}
+  override mousedown(e: MouseEvent): void {
+    this.grimpan.active = true;
+  }
   override mousemove(e: MouseEvent): void {}
-  override mouseup(e: MouseEvent): void {}
+  override mouseup(e: MouseEvent): void {
+    // 히스토리 저장
+    if (this.grimpan.active) {
+      this.invoke(new SaveHistoryCommand(this.grimpan));
+    }
+  }
 }
 
 export class PipetteMode extends Mode {

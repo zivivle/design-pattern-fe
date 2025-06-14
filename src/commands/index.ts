@@ -41,6 +41,18 @@ export class PenSelectCommand extends Command {
   }
 }
 
+export class SaveHistoryCommand extends Command {
+  name = "saveHistory";
+
+  constructor(private grimpan: Grimpan) {
+    super();
+  }
+
+  override execute(): void {
+    this.grimpan.history.saveHistory();
+  }
+}
+
 export class EraserSelectCommand extends Command {
   name = "eraserSelect";
 

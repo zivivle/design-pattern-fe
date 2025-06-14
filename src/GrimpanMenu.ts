@@ -1,8 +1,10 @@
 import {
   BackCommand,
   Command,
+  ForwardCommand,
   PenSelectCommand,
   SaveCommand,
+  SaveHistoryCommand,
 } from "./commands/index.js";
 import { ChromeGrimpan, Grimpan, GrimpanMode, IEGrimpan } from "./Grimpan.js";
 import {
@@ -67,10 +69,15 @@ export class IEGrimpanMenu extends GrimpanMenu {
     types.forEach(this.drawButtonByType.bind(this));
     document.addEventListener("keydown", this.onClickBack);
     this.grimpan.setMode("pen");
+    this.executeCommand(new SaveHistoryCommand(this.grimpan));
   }
 
   onClickBack() {
     this.executeCommand(new BackCommand(this.grimpan.history));
+  }
+
+  onClickForward() {
+    this.executeCommand(new ForwardCommand(this.grimpan.history));
   }
 
   drawButtonByType(type: BtnType) {
@@ -90,16 +97,12 @@ export class IEGrimpanMenu extends GrimpanMenu {
         break;
       case "back":
         btn = new GrimpanMenuBtn.Builder(this, "뒤로가기", type)
-          .setOnClick(() => {
-            // 뒤로가기 작업
-          })
+          .setOnClick(this.onClickBack.bind(this))
           .build();
         break;
       case "forward":
         btn = new GrimpanMenuBtn.Builder(this, "앞으로가기", type)
-          .setOnClick(() => {
-            // 앞으로가기 작업
-          })
+          .setOnClick(this.onClickForward.bind(this))
           .build();
         break;
       case "save":
@@ -140,6 +143,7 @@ export class ChromeGrimpanMenu extends GrimpanMenu {
     types.forEach(this.drawButtonByType.bind(this));
     document.addEventListener("keydown", this.onClickBack.bind(this));
     this.grimpan.setMode("pen");
+    this.executeCommand(new SaveHistoryCommand(this.grimpan));
   }
 
   onSave() {
@@ -148,6 +152,10 @@ export class ChromeGrimpanMenu extends GrimpanMenu {
 
   onClickBack() {
     this.executeCommand(new BackCommand(this.grimpan.history));
+  }
+
+  onClickForward() {
+    this.executeCommand(new ForwardCommand(this.grimpan.history));
   }
 
   onClickPen() {
@@ -200,9 +208,7 @@ export class ChromeGrimpanMenu extends GrimpanMenu {
         break;
       case "forward":
         btn = new GrimpanMenuBtn.Builder(this, "앞으로가기", type)
-          .setOnClick(() => {
-            // 앞으로가기 작업
-          })
+          .setOnClick(this.onClickForward.bind(this))
           .build();
         break;
       case "pipette":
