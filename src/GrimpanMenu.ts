@@ -2,7 +2,6 @@ import {
   BackCommand,
   Command,
   ForwardCommand,
-  PenSelectCommand,
   SaveCommand,
   SaveHistoryCommand,
 } from "./commands/index.js";
@@ -12,6 +11,7 @@ import {
   GrimpanMenuInput,
   GrimpanMenuSaveBtn,
 } from "./GrimpanMenuBtn.js";
+import { ChromeMenuDrawVisitor, MenuDrawVisitor } from "./MenuDrawVisitor.js";
 import { SubscribeManager } from "./Observer.js";
 
 export type BtnType =
@@ -29,6 +29,7 @@ export abstract class GrimpanMenu {
   grimpan: Grimpan;
   dom: HTMLElement;
   colorBtn!: HTMLInputElement;
+  menuDrawVisitor!: MenuDrawVisitor;
 
   protected constructor(grimpan: Grimpan, dom: HTMLElement) {
     this.grimpan = grimpan;
@@ -121,7 +122,6 @@ export class IEGrimpanMenu extends GrimpanMenu {
           .build();
         break;
     }
-    btn.draw();
     return btn;
   }
 
@@ -139,8 +139,20 @@ export class IEGrimpanMenu extends GrimpanMenu {
 export class ChromeGrimpanMenu extends GrimpanMenu {
   private static instance: ChromeGrimpanMenu;
 
+  constructor(
+    grimpan: ChromeGrimpan,
+    dom: HTMLElement,
+    menuDrawVisitor = new ChromeMenuDrawVisitor()
+  ) {
+    super(grimpan, dom);
+    this.menuDrawVisitor = menuDrawVisitor;
+  }
+
   override initialize(types: BtnType[]): void {
-    types.forEach(this.drawButtonByType.bind(this));
+    types.forEach((type) => {
+      const btn = this.drawButtonByType.bind(this)(type);
+      btn.draw(this.menuDrawVisitor);
+    });
     document.addEventListener("keydown", this.onClickBack.bind(this));
     this.grimpan.setMode("pen");
     this.executeCommand(new SaveHistoryCommand(this.grimpan));
@@ -181,42 +193,49 @@ export class ChromeGrimpanMenu extends GrimpanMenu {
   drawButtonByType(type: BtnType) {
     let btn;
     switch (type) {
-      case "pen":
+      case "pen": {
         btn = new GrimpanMenuBtn.Builder(this, "펜", type)
           .setOnClick(this.onClickPen.bind(this))
           .build();
-        break;
-      case "circle":
+        return btn;
+      }
+      case "circle": {
         btn = new GrimpanMenuBtn.Builder(this, "원", type)
           .setOnClick(this.onClickCircle.bind(this))
           .build();
-        break;
-      case "rectangle":
+        return btn;
+      }
+      case "rectangle": {
         btn = new GrimpanMenuBtn.Builder(this, "사각형", type)
           .setOnClick(this.onClickRectangle.bind(this))
           .build();
-        break;
-      case "eraser":
+        return btn;
+      }
+      case "eraser": {
         btn = new GrimpanMenuBtn.Builder(this, "지우개", type)
           .setOnClick(this.onClickEraser.bind(this))
           .build();
-        break;
-      case "back":
+        return btn;
+      }
+      case "back": {
         btn = new GrimpanMenuBtn.Builder(this, "뒤로가기", type)
           .setOnClick(this.onClickBack.bind(this))
           .build();
-        break;
-      case "forward":
+        return btn;
+      }
+      case "forward": {
         btn = new GrimpanMenuBtn.Builder(this, "앞으로가기", type)
           .setOnClick(this.onClickForward.bind(this))
           .build();
-        break;
-      case "pipette":
+        return btn;
+      }
+      case "pipette": {
         btn = new GrimpanMenuBtn.Builder(this, "파이프티", type)
           .setOnClick(this.onClickPipette.bind(this))
           .build();
-        break;
-      case "color":
+        return btn;
+      }
+      case "color": {
         btn = new GrimpanMenuInput.Builder(this, "컬러", type)
           .setOnChange((e: Event) => {
             if (e.target) {
@@ -224,8 +243,9 @@ export class ChromeGrimpanMenu extends GrimpanMenu {
             }
           })
           .build();
-        break;
-      case "save":
+        return btn;
+      }
+      case "save": {
         btn = new GrimpanMenuSaveBtn.Builder(this, "저장", type)
           .setOnClick(this.onSave.bind(this))
           .setFilterListeners({
@@ -246,10 +266,11 @@ export class ChromeGrimpanMenu extends GrimpanMenu {
             },
           })
           .build();
-        break;
+        return btn;
+      }
+      default:
+        throw new Error(`Invalid button type: ${type}`);
     }
-    btn.draw();
-    return btn;
   }
 
   static override getInstance(
